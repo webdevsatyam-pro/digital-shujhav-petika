@@ -34,12 +34,24 @@ export default function AdminView({ entries, setEntries }) {
   const [pass, setPass] = useState("");
   const [wrongPass, setWrongPass] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
 
   const login = () => {
     if (pass === ADMIN_PASSWORD) {
-      setUnlocked(true);
       setWrongPass(false);
-    } else setWrongPass(true);
+      return true;
+    } else {
+      setWrongPass(true);
+      return false;
+    }
+  };
+
+  const handleLogin = () => {
+    const success = login();
+    if (success) {
+      setLoading(true);
+      setTimeout(() => setUnlocked(true), 1500); // 1.5s loader dikhao phir unlock
+    }
   };
 
   const updateStatus = async (id, status) => {
@@ -111,7 +123,7 @@ export default function AdminView({ entries, setEntries }) {
               boxSizing: "border-box",
               marginBottom: 10,
             }}
-            placeholder="Admin password dalein"
+            placeholder=" Enter Admin password "
             value={pass}
             onChange={(e) => setPass(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && login()}
@@ -124,11 +136,13 @@ export default function AdminView({ entries, setEntries }) {
           {/* Login Button */}
 
           <button
+            onClick={handleLogin}
+            disabled={loading}
             style={{
               padding: "14px 28px",
               borderRadius: 12,
               border: "1px solid rgba(99,137,255,0.3)",
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               fontSize: 15,
               fontWeight: 700,
               width: "100%",
@@ -143,8 +157,10 @@ export default function AdminView({ entries, setEntries }) {
               transition: "all 0.2s ease",
               position: "relative",
               overflow: "hidden",
+              opacity: loading ? 0.8 : 1,
             }}
             onMouseEnter={(e) => {
+              if (loading) return;
               e.currentTarget.style.background =
                 "linear-gradient(135deg, #2563eb, #4f46e5)";
               e.currentTarget.style.boxShadow =
@@ -153,6 +169,7 @@ export default function AdminView({ entries, setEntries }) {
               e.currentTarget.style.borderColor = "rgba(99,137,255,0.6)";
             }}
             onMouseLeave={(e) => {
+              if (loading) return;
               e.currentTarget.style.background =
                 "linear-gradient(135deg, #3b82f6, #6366f1)";
               e.currentTarget.style.boxShadow =
@@ -161,29 +178,50 @@ export default function AdminView({ entries, setEntries }) {
               e.currentTarget.style.borderColor = "rgba(99,137,255,0.3)";
             }}
             onMouseDown={(e) => {
+              if (loading) return;
               e.currentTarget.style.transform = "translateY(1px) scale(0.98)";
               e.currentTarget.style.boxShadow =
                 "0 2px 10px rgba(59,130,246,0.3)";
             }}
             onMouseUp={(e) => {
+              if (loading) return;
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.boxShadow =
                 "0 6px 28px rgba(59,130,246,0.55)";
-            }}
-            onClick={login}>
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Login Karein
+            }}>
+            {loading ? (
+              <>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <span
+                  style={{
+                    width: 15,
+                    height: 15,
+                    borderRadius: "50%",
+                    border: "2.5px solid rgba(255,255,255,0.3)",
+                    borderTopColor: "#fff",
+                    animation: "spin 0.7s linear infinite",
+                    display: "inline-block",
+                  }}
+                />
+                Logging in…
+              </>
+            ) : (
+              <>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Login Karein
+              </>
+            )}
           </button>
           {/* <div
             style={{
@@ -286,6 +324,7 @@ export default function AdminView({ entries, setEntries }) {
         onClick={() => {
           setUnlocked(false);
           setPass("");
+          setLoading(false);
         }}>
         <svg
           width="14"

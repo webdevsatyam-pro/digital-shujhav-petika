@@ -1,6 +1,9 @@
 // ══════════════════════════════════════════════
 //  COMPONENT: EntryCard
 //  Single entry display in admin panel
+
+import { useState } from "react";
+
 // ══════════════════════════════════════════════
 
 const typeColor = {
@@ -30,6 +33,19 @@ const badge = (color) => ({
 });
 
 export default function EntryCard({ entry, onStatusChange, onDelete }) {
+  const [delState, setDelState] = useState("idle");
+
+  const handleDelete = async () => {
+    if (delState === "idle") {
+      setDelState("confirming");
+      return;
+    }
+    if (delState === "confirming") {
+      setDelState("deleting");
+      await new Promise((res) => setTimeout(res, 1300));
+      onDelete(entry.id);
+    }
+  };
   return (
     <div
       style={{
@@ -114,21 +130,79 @@ export default function EntryCard({ entry, onStatusChange, onDelete }) {
             {s}
           </button>
         ))}
-        <button
-          onClick={() => onDelete(entry.id)}
-          style={{
-            padding: "5px 12px",
-            borderRadius: 8,
-            border: "none",
-            cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 600,
-            background: "rgba(239,68,68,0.15)",
-            color: "#ef4444",
-            marginLeft: "auto",
-          }}>
-          🗑️ Delete
-        </button>
+
+        <>
+          <style>{`
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+    @keyframes shrink { from{transform:scaleX(1)} to{transform:scaleX(0)} }
+    .del-progress {
+      position:absolute; bottom:0; left:0; height:2px; width:100%;
+      background:rgba(255,255,255,0.6); transform-origin:left;
+      animation: shrink 1.2s linear forwards;
+    }
+    .del-spinner {
+      width:10px; height:10px; border-radius:50%;
+      border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
+      animation: spin 0.7s linear infinite;
+    }
+  `}</style>
+
+          {delState === "confirming" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDelState("idle");
+              }}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 8,
+                border: "1px solid #ddd",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                background: "transparent",
+                color: "#888",
+                marginLeft: "auto",
+                animation: "fadeIn 0.15s ease",
+              }}>
+              Cancel
+            </button>
+          )}
+
+          <button
+            onClick={handleDelete}
+            disabled={delState === "deleting"}
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              padding: "5px 12px",
+              borderRadius: 8,
+              border: "none",
+              cursor: delState === "deleting" ? "not-allowed" : "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              background:
+                delState === "idle" ? "rgba(239,68,68,0.15)" : "#ef4444",
+              color: delState === "idle" ? "#ef4444" : "#fff",
+              marginLeft: delState === "confirming" ? 6 : "auto",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "background 0.2s, color 0.2s",
+            }}>
+            {delState === "idle" && <>🗑️ Delete</>}
+            {delState === "confirming" && (
+              <span style={{ animation: "fadeIn 0.15s ease" }}>Sure?</span>
+            )}
+            {delState === "deleting" && (
+              <>
+                <span className="del-spinner" /> Deleting…{" "}
+                <span className="del-progress" />
+              </>
+            )}
+          </button>
+        </>
       </div>
     </div>
   );

@@ -44,6 +44,8 @@ export default function EntryCard({ entry, onStatusChange, onDelete }) {
       setDelState("deleting");
       await new Promise((res) => setTimeout(res, 1300));
       onDelete(entry.id);
+      setShowDeletedPopup(true);
+      setTimeout(() => setShowDeletedPopup(false), 2500);
     }
   };
   return (

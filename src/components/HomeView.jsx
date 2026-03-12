@@ -2,9 +2,12 @@
 //  COMPONENT: HomeView
 //  QR code display + stats
 // ══════════════════════════════════════════════
+import { useState } from "react";
 import QRCode from "./QRCode";
 
 export default function HomeView({ entries, setView, setSubmitted }) {
+  const [loading, setLoading] = useState(false);
+
   const qrUrl =
     typeof window !== "undefined"
       ? window.location.href
@@ -184,65 +187,50 @@ export default function HomeView({ entries, setView, setSubmitted }) {
       </div>
 
       {/* shikayat bhejane vala button */}
-      <button
-        style={{
-          position: "relative",
-          padding: "14px 28px",
-          borderRadius: 12,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 15,
-          fontWeight: 700,
-          width: "100%",
-          color: "#fff",
-          background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
-          boxShadow: "0 4px 20px #8b5cf650",
-          overflow: "hidden",
-          transition: "transform 0.18s ease, box-shadow 0.18s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
-          e.currentTarget.style.boxShadow = "0 8px 30px #8b5cf670";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "translateY(0) scale(1)";
-          e.currentTarget.style.boxShadow = "0 4px 20px #8b5cf650";
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.transform = "translateY(1px) scale(0.98)";
-          e.currentTarget.style.boxShadow = "0 2px 10px #8b5cf640";
-        }}
-        onMouseUp={(e) => {
-          e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
-          e.currentTarget.style.boxShadow = "0 8px 30px #8b5cf670";
-        }}
-        onClick={() => {
-          setView("form");
-          setSubmitted(false);
-        }}>
-        {/* Shimmer sweep on hover */}
-        <span
-          style={{
-            position: "absolute",
-            top: 0,
-            left: "-75%",
-            width: "50%",
-            height: "100%",
-            background:
-              "linear-gradient(120deg, transparent, rgba(255,255,255,0.25), transparent)",
-            animation: "shimmer 2.2s infinite",
-            pointerEvents: "none",
-          }}
-        />
+      <>
         <style>{`
     @keyframes shimmer {
       0%   { left: -75%; }
       60%  { left: 130%; }
       100% { left: 130%; }
     }
+    @keyframes dots {
+      0%, 80%, 100% { opacity: 0.3; }
+      40%           { opacity: 1; }
+    }
+    .dot { display: inline-block; animation: dots 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    .shimmer-span { animation: shimmer 2.2s infinite; }
   `}</style>
-        ✍️ Abhi Sujhav / Shikayat Bhejein
-      </button>
+
+        <button
+          disabled={loading}
+          className={`relative w-full flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-[15px] text-white overflow-hidden transition-all duration-200 shadow-[0_4px_20px_#8b5cf650] bg-gradient-to-br from-violet-500 to-violet-800 ${loading ? "cursor-not-allowed" : "cursor-pointer hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-[0_8px_30px_#8b5cf670] active:translate-y-px active:scale-[0.98] active:shadow-[0_2px_10px_#8b5cf640]"}`}
+          onClick={() => {
+            setLoading(true);
+            setTimeout(() => {
+              setLoading(false);
+              setView("form");
+              setSubmitted(false);
+            }, 500);
+          }}>
+          {!loading && (
+            <span className="shimmer-span pointer-events-none absolute top-0 left-[-75%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+          )}
+
+          {loading ? (
+            <>
+              <span className="w-[18px] h-[18px] rounded-full border-2 border-white/30 border-t-white animate-spin shrink-0" />
+              Wait<span className="dot">.</span>
+              <span className="dot">.</span>
+              <span className="dot">.</span>
+            </>
+          ) : (
+            <>✍️ Abhi Sujhav / Shikayat Bhejein</>
+          )}
+        </button>
+      </>
     </div>
   );
 }

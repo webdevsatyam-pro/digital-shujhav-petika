@@ -75,6 +75,9 @@ export default function SubmitForm({
   const handleSubmit = async () => {
     if (!message.trim()) return;
     setLoading(true);
+
+    await new Promise((res) => setTimeout(res, 2000)); // 2 sec loader
+
     const entry = {
       id: Date.now(),
       type,
@@ -235,15 +238,37 @@ export default function SubmitForm({
           }}>
           {message.length}/500
         </div>
-
+        {/* anonimus bhejane vala button */}
         <button
           style={{
             ...primaryBtn(typeColor[type]),
             opacity: !message.trim() || loading ? 0.5 : 1,
+            cursor: !message.trim() || loading ? "not-allowed" : "pointer",
           }}
           onClick={handleSubmit}
           disabled={!message.trim() || loading}>
-          {loading ? "⏳ Submit ho raha hai..." : "📤 Anonymously Bhejein"}
+          {loading ? (
+            <>
+              <span
+                style={{
+                  width: 18,
+                  height: 18,
+                  border: "2.5px solid rgba(255,255,255,0.3)",
+                  borderTop: "2.5px solid #fff",
+                  borderRadius: "50%",
+                  animation: "spin 0.75s linear infinite",
+                  display: "inline-block",
+                  verticalAlign: "middle",
+                  marginRight: 8,
+                }}
+              />
+              Bhej rahe hain<span className="dot">.</span>
+              <span className="dot">.</span>
+              <span className="dot">.</span>
+            </>
+          ) : (
+            <>📤 Anonymously Bhejein</>
+          )}
         </button>
       </div>
     </div>

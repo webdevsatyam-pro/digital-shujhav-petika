@@ -1,11 +1,10 @@
 // ══════════════════════════════════════════════
 //  COMPONENT: EntryCard
 //  Single entry display in admin panel
-
-import { useState } from "react";
-
 // ══════════════════════════════════════════════
 
+import { useState } from "react";
+import { showToast } from "../utils/toast";
 const typeColor = {
   suggestion: "#10b981",
   complaint: "#ef4444",
@@ -43,11 +42,20 @@ export default function EntryCard({ entry, onStatusChange, onDelete }) {
     if (delState === "confirming") {
       setDelState("deleting");
       await new Promise((res) => setTimeout(res, 1300));
+
+      const label =
+        entry.type === "suggestion"
+          ? "Sujhav"
+          : entry.type === "complaint"
+            ? "Shikayat"
+            : "Feedback";
+
+      showToast(`${label} successfully deleted!`, "error");
+      setDelState("idle");
       onDelete(entry.id);
-      setShowDeletedPopup(true);
-      setTimeout(() => setShowDeletedPopup(false), 2500);
     }
   };
+
   return (
     <div
       style={{
@@ -135,20 +143,23 @@ export default function EntryCard({ entry, onStatusChange, onDelete }) {
 
         <>
           <style>{`
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-    @keyframes shrink { from{transform:scaleX(1)} to{transform:scaleX(0)} }
-    .del-progress {
-      position:absolute; bottom:0; left:0; height:2px; width:100%;
-      background:rgba(255,255,255,0.6); transform-origin:left;
-      animation: shrink 1.2s linear forwards;
-    }
-    .del-spinner {
-      width:10px; height:10px; border-radius:50%;
-      border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
-      animation: spin 0.7s linear infinite;
-    }
-  `}</style>
+              @keyframes spin    { to { transform: rotate(360deg); } }
+              @keyframes fadeIn  { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+              @keyframes shrink  { from { transform:scaleX(1); } to { transform:scaleX(0); } }
+              .del-progress {
+                position: absolute; bottom: 0; left: 0;
+                height: 2px; width: 100%;
+                background: rgba(255,255,255,0.6);
+                transform-origin: left;
+                animation: shrink 1.2s linear forwards;
+              }
+              .del-spinner {
+                width: 10px; height: 10px; border-radius: 50%;
+                border: 2px solid rgba(255,255,255,0.3);
+                border-top-color: #fff;
+                animation: spin 0.7s linear infinite;
+              }
+            `}</style>
 
           {delState === "confirming" && (
             <button

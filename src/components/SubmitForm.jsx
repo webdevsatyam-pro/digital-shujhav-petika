@@ -5,6 +5,7 @@
 import { useState } from "react";
 import ToggleGroup from "./ToggleGroup";
 import { saveEntries } from "../utils/storage";
+import { showToast } from "../utils/toast";
 
 const TYPE_OPTIONS = [
   { val: "suggestion", label: "💡 Sujhav", color: "#10b981" },
@@ -76,7 +77,7 @@ export default function SubmitForm({
     if (!message.trim()) return;
     setLoading(true);
 
-    await new Promise((res) => setTimeout(res, 2000)); // 2 sec loader
+    await new Promise((res) => setTimeout(res, 1500));
 
     const entry = {
       id: Date.now(),
@@ -95,6 +96,7 @@ export default function SubmitForm({
     await saveEntries(updated);
     setEntries(updated);
     setLoading(false);
+    showToast("Apka Sujhav Submit Ho Gaya!!!", "success");
     setSubmitted(true);
     setMessage("");
   };

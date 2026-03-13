@@ -4,6 +4,8 @@ import HomeView from "./components/HomeView";
 import SubmitForm from "./components/SubmitForm";
 import AdminView from "./components/AdminView";
 import { loadEntries } from "./utils/storage";
+import { ToastContainer } from "react-toastify";
+import { Route, Routes } from "react-router";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -44,6 +46,7 @@ export default function App() {
       {view === "admin" && (
         <AdminView entries={entries} setEntries={setEntries} />
       )}
+      <ToastContainer />
     </div>
   );
 }
